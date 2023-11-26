@@ -16,6 +16,8 @@ const porta = 3000;
 const host = '0.0.0.0';
 
 const app = express();
+//ativando a funcionalidade de manipular cookies
+app.use(cookieParser());
 
 //ativar a extensão que manipula requisições HTTP
 //OPÇÃO FALSE ativa a extensão querystring
@@ -28,9 +30,12 @@ app.use(express.static(path.join(process.cwd(),'paginas')));
 
 app.get('/', (requisicao, resposta) => {
 
-    const dataUltimoAcesso = requisicao.cookies.get("DataUltimoAcesso");
+    const dataUltimoAcesso = requisicao.cookies.DataUltimoAcesso;
     const data = new Date();
-    resposta.cookie("DataUltimoAcesso", data.toLocaleDateString() + " " + data.toLocaleTimeString());
+    resposta.cookie("DataUltimoAcesso", data.toLocaleDateString() + " " + data.toLocaleTimeString(), {
+            maxAge: 1000 * 60 * 60 * 24 * 30, //cookie ficará válido por 30 dias
+            httpOnly: true
+    });
     resposta.end(`<!DOCTYPE html>
     <html lang="pt-br">
     <head>
@@ -52,7 +57,11 @@ app.get('/', (requisicao, resposta) => {
         <ul>
             <p><a href="/formulario.html">Cadastrar Carta</a></p>
         </ul>
-    
+    </body>
+    <footer>
+        <p>Seu último acesso foi em ${dataUltimoAcesso}</p>
+    </footer>
+    </html>
 `);
 })
 
