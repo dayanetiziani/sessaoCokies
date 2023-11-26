@@ -1,6 +1,12 @@
+//Módulo 4 deverá acrescentar duas novas funcionalidades ao nosso projeto
+//Exibir a data do ultimo acesso do usuário (cookies)
+//Autenticar o usuário para controlar o acesso aos recursos da aplicação (sessão)
+
+
 //sintaxe moderna não funciona no vercell
 import express from 'express';
 import path from 'path';
+import cookieParser from 'cookie-parser';
 
 //exemplo de importação de biblioteca usando type:'commonjs'
 //sintaxe antiga 
@@ -21,6 +27,10 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(process.cwd(),'paginas')));
 
 app.get('/', (requisicao, resposta) => {
+
+    const dataUltimoAcesso = requisicao.cookies.get("DataUltimoAcesso");
+    const data = new Date();
+    resposta.cookie("DataUltimoAcesso", data.toLocaleDateString() + " " + data.toLocaleTimeString());
     resposta.end(`<!DOCTYPE html>
     <html lang="pt-br">
     <head>
@@ -42,6 +52,7 @@ app.get('/', (requisicao, resposta) => {
         <ul>
             <p><a href="/formulario.html">Cadastrar Carta</a></p>
         </ul>
+    
 `);
 })
 
