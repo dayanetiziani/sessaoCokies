@@ -7,6 +7,8 @@
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
+
 
 //exemplo de importação de biblioteca usando type:'commonjs'
 //sintaxe antiga 
@@ -15,9 +17,32 @@ import cookieParser from 'cookie-parser';
 const porta = 3000;
 const host = '0.0.0.0';
 
+//pseudo middleware
+function autenticar(requisicao, resposta, next){
+    if(requisicao.session.usuarioAutenticado){
+        next();
+    }
+    else{
+        resposta.redirect("/login.html");
+    }
+}
+
 const app = express();
 //ativando a funcionalidade de manipular cookies
 app.use(cookieParser());
+
+//adicionar uma nova capacidade para essa aplicação: memorizar com que o servidor está falando
+//durante o uso do sistema, a aplicação saberá, dentro de uma aplicação válida, com quem ela se comunica.
+app.use(session({
+    secret:"M1nH4Ch4v3S3cR3t4",
+    resave: true, //atualiza a sessão mesmo que não há alteração a cada requisição
+    saveUninitialized: true,
+    cookie:{
+        //tempo de vida da sessão
+        maxAge: 1000 * 60 * 15 //15 minutos
+    }
+
+}))
 
 //ativar a extensão que manipula requisições HTTP
 //OPÇÃO FALSE ativa a extensão querystring
@@ -28,7 +53,7 @@ app.use(express.urlencoded({extended: true}));
 //app.use(express.static('./paginas'));
 app.use(express.static(path.join(process.cwd(),'paginas')));
 
-app.get('/', (requisicao, resposta) => {
+app.get('/', autenticar, (requisicao, resposta) => {
 
     const dataUltimoAcesso = requisicao.cookies.DataUltimoAcesso;
     const data = new Date();
@@ -66,7 +91,7 @@ app.get('/', (requisicao, resposta) => {
 })
 
 //rota para processar cadastros de cartas 
-app.post('/lista', processaCartasUsuario);
+app.post('/lista', autenticar, processaCartasUsuario);
 
 app.listen(porta, host, () => {
     console.log(`Servidor executando na url http://${host}:${porta}`);
