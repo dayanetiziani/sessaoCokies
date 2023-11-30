@@ -68,14 +68,15 @@ app.get('/', autenticar, (requisicao, resposta) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ação Natal 2023 - Página Inicial</title>
         <style>
-        body{/* estiliza o que estiver na pagina*/
+        body{
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
         }
+
     </style>
     </head>
     <body>
-        <h1 >CAMPANHA PAPAI NOEL 2023</h1>
+        <h1>CAMPANHA PAPAI NOEL 2023</h1>
         <hr>
         <p>Que tal enviar a cartinha para o Papai Noel por aqui?</p>
         <p>Basta clicar no link "Cadastrar Carta", preencher corretamente o formulário e enviar a cartinha.</p>
@@ -89,6 +90,30 @@ app.get('/', autenticar, (requisicao, resposta) => {
     </html>
 `);
 })
+//criar o endpoint login que irá processar o login da aplicação
+app.post('/login', (requisicao, resposta) =>{
+    const usuario =  requisicao.body.usuario;
+    const senha = requisicao.body.senha;
+    if(usuario && senha && (usuario ===  'dayane') && (senha === '1301')){
+        requisicao.session.usuarioAutenticado = true;
+        resposta.redirect('/');
+    }
+    else{
+        resposta.end(`
+        <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Falha na autenticação</title>
+            </head>
+            <body>
+                <h3>Usuário ou senha inválidos!</h3>
+                <a href="/login.html">Voltar ao login</a>
+            </body>
+        </html>
+        `);
+    }
+});
 
 //rota para processar cadastros de cartas 
 app.post('/lista', autenticar, processaCartasUsuario);
